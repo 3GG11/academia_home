@@ -62,9 +62,8 @@ class Professor {
     }
 
     // Atualizar dados no banco de dados 
-    public function atualizarDados($cpf, $nome, $email, $d_nascimento, $salario) {
+    public function atualizarDados($nome, $email, $d_nascimento, $salario) {
         $cmd = $this->pdo->prepare("UPDATE Professor SET nome = :n, email = :e, d_nascimento = :d, salario = :s WHERE cpf = :c");
-        $cmd->bindValue(":c", $cpf);
         $cmd->bindValue(":n", $nome);
         $cmd->bindValue(":e", $email);
         $cmd->bindValue(":d", $d_nascimento);
