@@ -18,13 +18,12 @@ if (isset($_POST['nome'])) {
     if(isset($_GET['cpf_up']) && !empty($_GET['cpf_up'])){
         $cpf_upd = addslashes($_GET['cpf_up']);
         $nome = addslashes($_POST['nome']);
-        $telefone = addslashes($_POST['telefone']);
         $email = addslashes($_POST['email']);
-        $sexo = addslashes($_POST['sexo']);
-        $endereco = addslashes($_POST['endereco']);
-        if (!empty($nome) && !empty($telefone) && !empty($email) && !empty($sexo) && !empty($endereco)) { 
+        $d_nascimento = addslashes($_POST['d_nascimento']);
+        $salario = addslashes($_POST['salario']);
+        if (!empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
             // Editar
-            $p->atualizarDados($cpf_upd, $nome, $telefone, $email, $endereco, $sexo );
+            $p->atualizarDados($cpf_upd, $nome, $email, $d_nascimento, $salario);
             header("location: pg.php");
         } else {
             echo "Preencha todos os campos";
@@ -38,7 +37,7 @@ if (isset($_POST['nome'])) {
         $salario = addslashes($_POST['salario']);
         if (!empty($cpf) && !empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
             // Cadastrar
-            if (!$p->cadastrar( $cpf ,$nome, $email, $d_nascimento, $salario )){ 
+            if (!$p->cadastrar($cpf ,$nome, $email, $d_nascimento, $salario )){ 
                 echo "CPF já está cadastrado!";
             }
         } else {
@@ -94,7 +93,7 @@ if(isset($_GET['cpf_up'])) {
                 }
                 ?>
                 <td>
-                   <a href="pg.php?cpf_up=<?php echo $dados[$i]['cpf'] ?>">Editar</a>
+                    <a href="pg.php?cpf_up=<?php echo $dados[$i]['cpf'] ?>">Editar</a>
                     <a href="pg.php?cpf=<?php echo $dados[$i]['cpf'] ?>">Excluir</a>
                 </td>
                 <?php
