@@ -1,76 +1,117 @@
-<?php
+<?php 
+require_once 'professor.php';
+$p = new Professor("academia", "localhost", "root", "mint"); 
+?>
 
-class Professor {
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD com PHP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    private $pdo;
-
-    // Conexão com o Banco de dados
-    public function __construct($dbname, $host, $user, $password) {
-        try {
-            $this->pdo = new PDO("mysql:dbname=".$dbname.";host=".$host, $user, $password);
-        } catch (PDOException $e) {
-            echo "Erro com o banco de dados: " . $e->getMessage();
-            exit();
-        } catch (Exception $e) {
-            echo "Erro: " . $e->getMessage();
-            exit();
-        }
-    }
-
-    public function buscarDados() {
-        $cmd = $this->pdo->prepare("SELECT * FROM Professor ORDER BY nome");
-        $cmd->execute();
-        $res = $cmd->fetchAll(PDO::FETCH_ASSOC);
-        return $res;
-    }
-
-    // função de cadastrar pessoas no banco de dados
-    public function cadastrar($cpf, $nome, $email, $d_nascimento, $salario) {
-        // verificar se já foi cadastrado anteriormente com base no CPF
-        $cmd = $this->pdo->prepare("SELECT cpf FROM Professor WHERE cpf = :c");
-        $cmd->bindValue(":c", $cpf);
-        $cmd->execute();
-
-        if ($cmd->rowCount() > 0) {
-            return false;
+<?php 
+if (isset($_POST['nome'])) { 
+    // -------------------EDITAR------------------------
+    if(isset($_GET['cpf_up']) && !empty($_GET['cpf_up'])){
+        $cpf_upd = addslashes($_GET['cpf_up']);
+        $nome = addslashes($_POST['nome']);
+        $email = addslashes($_POST['email']);
+        $d_nascimento = addslashes($_POST['d_nascimento']);
+        $salario = addslashes($_POST['salario']);
+        if (!empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
+            // Editar
+            $p->atualizarDados($cpf_upd, $nome, $email, $d_nascimento, $salario);
+            header("location: pg.php");
         } else {
-            $cmd = $this->pdo->prepare("INSERT INTO Professor (cpf, nome, email, d_nascimento, salario) VALUES (:c, :n, :e, :d, :s)");
-            $cmd->bindValue(":c", $cpf);
-            $cmd->bindValue(":n", $nome);
-            $cmd->bindValue(":e", $email);
-            $cmd->bindValue(":d", $d_nascimento);
-            $cmd->bindValue(":s", $salario);
-            $cmd->execute();
-            return true;
+            echo "Preencha todos os campos";
+        } 
+    // ------------------CADASTRAR----------------------
+    } else {
+        $cpf = addslashes($_POST['cpf']);
+        $nome = addslashes($_POST['nome']);
+        $email = addslashes($_POST['email']);
+        $d_nascimento = addslashes($_POST['d_nascimento']);
+        $salario = addslashes($_POST['salario']);
+        if (!empty($cpf) && !empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
+            // Cadastrar
+            if (!$p->cadastrar($cpf ,$nome, $email, $d_nascimento, $salario )){ 
+                echo "CPF já está cadastrado!";
+            }
+        } else {
+            echo "Preencha todos os campos";
         }
-    }
-
-    public function excluir($cpf) {
-        $cmd = $this->pdo->prepare("DELETE FROM Professor WHERE cpf = :c");
-        $cmd->bindValue(":c", $cpf);
-        $cmd->execute();
-    }
-
-    // Buscar dados de uma pessoa 
-    public function buscarDadosProfessor($cpf) {
-        $res = array(); // prevenindo erro, caso não retorne nada do banco, aparecerá um array vazio.
-        $cmd = $this->pdo->prepare("SELECT * FROM Professor WHERE cpf = :c");
-        $cmd->bindValue(":c", $cpf);
-        $cmd->execute();
-        $res = $cmd->fetch(PDO::FETCH_ASSOC);
-        return $res;
-    }
-
-    // Atualizar dados no banco de dados 
-    public function atualizarDados($cpf, $nome, $email, $d_nascimento, $salario) {
-        $cmd = $this->pdo->prepare("UPDATE Professor SET nome = :n, email = :e, d_nascimento = :d, salario = :s WHERE cpf = :c");
-        $cmd->bindValue(":n", $nome);
-        $cmd->bindValue(":e", $email);
-        $cmd->bindValue(":d", $d_nascimento);
-        $cmd->bindValue(":c", $cpf);
-        $cmd->bindValue(":s", $salario);
-        $cmd->execute();
     }
 }
 
+if(isset($_GET['cpf_up'])) { 
+    $cpf_update = addslashes($_GET['cpf_up']);
+    $res = $p->buscarDadosProfessor($cpf_update);
+} else {
+    $res = null;
+}
+?>
+
+<section id="esquerda">
+    <form method="POST">
+        <h2><?php echo isset($res) ? "Atualizar Professor" : "Cadastrar Professor"; ?></h2>
+        <label for="cpf">CPF</label>
+        <input type="number" name="cpf" id="cpf" value="<?php if(isset($res)){echo $res['cpf'];}?>" required>
+        <label for="nome">Nome</label>
+        <input type="text" name="nome" id="nome" value="<?php if(isset($res)){echo $res['nome'];}?>" required>
+        <label for="email">E-mail</label>
+        <input type="email" name="email" id="email" value="<?php if(isset($res)){echo $res['email'];}?>" required>
+        <label for="endereco">Data de Nascimento</label>
+        <input type="date" name="d_nascimento" id="d_nascimento" value="<?php if(isset($res)){echo $res['d_nascimento'];}?>" required>
+        <label for="salario">Salário</label>
+        <input type="number" name="salario" id="salario" value="<?php if(isset($res)){echo $res['salario'];}?>" required>
+        <input type="submit" value="<?php echo isset($res) ? "Atualizar" : "Cadastrar"; ?>">
+    </form>
+</section>
+
+<section id="direita">
+    <table>
+        <tr id="titulo"> 
+            <td>Nome</td>
+            <td>Email</td>
+            <td>Data de Nascimento</td>
+            <td>Salario</td>
+            <td></td>
+        </tr>
+
+        <?php 
+        $dados = $p->buscarDados();
+        if (count($dados) > 0) {
+            for ($i = 0; $i < count($dados); $i++) { 
+                echo "<tr>";
+                foreach ($dados[$i] as $k => $v) {
+                    if ($k != "cpf") {
+                        echo "<td>".$v."</td>";
+                    }
+                }
+                ?>
+                <td>
+                    <a href="pg.php?cpf_up=<?php echo $dados[$i]['cpf'] ?>">Editar</a>
+                    <a href="pg.php?cpf=<?php echo $dados[$i]['cpf'] ?>">Excluir</a>
+                </td>
+                <?php
+                echo "</tr>";
+            }
+        } else {
+            echo "Ainda não há pessoas cadastradas!";
+        }
+        ?>
+    </table>
+</section>
+</body>
+</html>
+
+<?php 
+if(isset($_GET['cpf'])) { 
+    $cpf = addslashes($_GET['cpf']);
+    $p->excluir($cpf); 
+    header("location: pg.php"); 
+}
 ?>
