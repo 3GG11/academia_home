@@ -13,24 +13,24 @@ $p = new Professor("academia", "localhost", "root", "mint");
 <body>
 
 <?php 
-if (isset($_POST['id_nome'])) { 
+if (isset($_POST['modalidade'])) { 
     // -------------------EDITAR------------------------
-    if(isset($_GET['cpf_up']) && !empty($_GET['cpf_up'])){
-        $cpf_upd = addslashes($_GET['cpf_up']);
-        $nome = addslashes($_POST['nome']);
-        $email = addslashes($_POST['email']);
-        $d_nascimento = addslashes($_POST['d_nascimento']);
-        $salario = addslashes($_POST['salario']);
-        if (!empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
+    if(isset($_GET['id_turma']) && !empty($_GET['id_turma'])){
+        $id_turmaUPD = addslashes($_GET['id_turma']);
+        $horario = addslashes($_POST['horario']);
+        $dia_semana = addslashes($_POST['dia_semana']);
+        $modalidade = addslashes($_POST['modalidade']);
+        $fk_cpf_professor = addslashes($_POST['fk_cpf_professor']);
+        if (!empty($horario) && !empty($dia_semana) && !empty($modalidade) && !empty($fk_cpf_professor)) { 
             // Editar
-            $p->atualizarDados($cpf_upd, $nome, $email, $d_nascimento, $salario);
+            $p->atualizarDados($id_turmaUPD, $modalidade, $dia_semana, $modalidade, $fk_cpf_professor);
             header("location: pg.php");
         } else {
             echo "Preencha todos os campos";
         } 
     // ------------------CADASTRAR----------------------
     } else {
-        $cpf = addslashes($_POST['cpf']);
+        $id_turma = addslashes($_POST['id_turma']);
         $nome = addslashes($_POST['nome']);
         $email = addslashes($_POST['email']);
         $d_nascimento = addslashes($_POST['d_nascimento']);
